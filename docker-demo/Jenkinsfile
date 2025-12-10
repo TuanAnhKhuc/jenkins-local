@@ -1,0 +1,40 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = "demo-jenkins-docker"
+    IMAGE_TAG  = "v1"
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        sh """
+          docker build -t ${IMAGE_NAME}:${IMAGE_TAG} docker-demo/
+        """
+      }
+    }
+
+    stage('Test Docker Image') {
+      steps {
+        sh """
+          docker run --rm ${IMAGE_NAME}:${IMAGE_TAG}
+        """
+      }
+    }
+
+    stage('List Images') {
+      steps {
+        sh "docker images | grep ${IMAGE_NAME}"
+      }
+    }
+
+  }
+}
