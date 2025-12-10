@@ -30,20 +30,20 @@ pipeline {
         stage('Test Run Container') {
             steps {
                 sh """
-                    # Start container WITHOUT exposing port 5000
                     docker run --rm -d --name python-test ${IMAGE_NAME}:${IMAGE_TAG}
-
-                    # Wait for app to start
                     sleep 3
 
-                    # Test inside container instead of localhost
-                    docker exec python-test curl -s http://localhost:5000
+                    docker exec python-test python - << 'EOF'
+        import urllib.request
+        resp = urllib.request.urlopen("http://localhost:5000").read().decode()
+        print(resp)
+        EOF
 
-                    # Stop container
                     docker stop python-test
                 """
             }
         }
+
 
         stage('Trivy Scan') {
             steps {
