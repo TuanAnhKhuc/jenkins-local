@@ -30,9 +30,16 @@ pipeline {
         stage('Test Run Container') {
             steps {
                 sh """
-                    docker run --rm -p 5000:5000 -d --name python-test ${IMAGE_NAME}:${IMAGE_TAG}
+                    # Start container WITHOUT exposing port 5000
+                    docker run --rm -d --name python-test ${IMAGE_NAME}:${IMAGE_TAG}
+
+                    # Wait for app to start
                     sleep 3
-                    curl -s http://localhost:5000
+
+                    # Test inside container instead of localhost
+                    docker exec python-test curl -s http://localhost:5000
+
+                    # Stop container
                     docker stop python-test
                 """
             }
