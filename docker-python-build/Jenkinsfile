@@ -28,21 +28,28 @@ pipeline {
         }
 
         stage('Test Run Container') {
-            steps {
-                sh """
-                    docker run --rm -d --name python-test ${IMAGE_NAME}:${IMAGE_TAG}
-                    sleep 3
+    steps {
+        sh """
+            # Force remove old container if exists
+            docker rm -f python-test || true
 
-                    docker exec python-test python - << 'EOF'
-        import urllib.request
-        resp = urllib.request.urlopen("http://localhost:5000").read().decode()
-        print(resp)
-        EOF
+            # Start new container
+            docker run -d --name python-test ${IMAGE_NAME}:${IMAGE_TAG}
 
-                    docker stop python-test
-                """
-            }
-        }
+            # Wait for app to start
+            sleep 3
+
+            # Test API inside container using Python
+            docker exec python-test python - << 'EOF'
+import urllib.request
+print(urllib.request.urlopen("http://localhost:5000").read().decode())
+EOF
+
+            # Stop container
+            docker stop python-test || true
+        """
+    }
+}
 
 
         stage('Trivy Scan') {
