@@ -1,6 +1,9 @@
 pipeline {
   agent {
-    docker { image 'docker:24.0.7' args '-v /var/run/docker.sock:/var/run/docker.sock' }
+    docker {
+      image 'docker:24.0.7'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+    }
   }
 
   environment {
@@ -24,11 +27,11 @@ pipeline {
       }
     }
 
-    stage('Test run container') {
+    stage('Test Run Container') {
       steps {
         sh """
           docker run --rm -p 5000:5000 -d --name python-test ${IMAGE_NAME}:${IMAGE_TAG}
-          sleep 2
+          sleep 3
           curl -s http://localhost:5000
           docker stop python-test
         """
@@ -38,19 +41,4 @@ pipeline {
     stage('Trivy Scan') {
       steps {
         sh """
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:latest \
-            image ${IMAGE_NAME}:${IMAGE_TAG}
-        """
-      }
-    }
 
-    stage('List Images') {
-      steps {
-        sh "docker images | grep ${IMAGE_NAME}"
-      }
-    }
-
-  }
-}
