@@ -1,0 +1,28 @@
+# Jenkins working directory (never commit this)
+jenkins_home/
+
+# Seed job generated files (if any)
+seed/*.xml
+seed/*.tmp
+
+# Jenkins logs
+logs/
+*.log
+
+# Docker junk files
+*.pid
+*.sock
+
+# macOS system files
+.DS_Store
+
+# IDE folders
+.vscode/
+.idea/
+
+# Git backups
+*.orig
+
+# Local Jenkins jobs, configs (avoid committing accidental files)
+jobs/
+config-history/
